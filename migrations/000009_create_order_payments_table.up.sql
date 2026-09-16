@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS order_payments (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT UNSIGNED NOT NULL,
+    amount DECIMAL(14,2) NOT NULL,
+    payment_method ENUM('CASH', 'TRANSFER', 'QRIS') NOT NULL,
+    notes VARCHAR(255) NULL DEFAULT NULL,
+    paid_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_order_payments_order_id (order_id),
+    CONSTRAINT fk_order_payments_order_id FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
