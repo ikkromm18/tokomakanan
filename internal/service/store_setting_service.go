@@ -2,10 +2,16 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ikkromm18/tokomakanan/internal/dto"
 	"github.com/ikkromm18/tokomakanan/internal/model"
 	"github.com/ikkromm18/tokomakanan/internal/repository"
+	"github.com/rs/zerolog/log"
+)
+
+const (
+	defaultStoreName = "Toko Makanan"
 )
 
 type StoreSettingService interface {
@@ -40,14 +46,14 @@ func toStoreSettingResponse(s *model.StoreSetting) *dto.StoreSettingResponse {
 func (s *storeSettingService) Get(ctx context.Context) (*dto.StoreSettingResponse, error) {
 	setting, err := s.repo.Get(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("storeSettingService.Get: %w", err)
 	}
 	if setting == nil {
 		setting = &model.StoreSetting{
-			Name: "Toko Makanan",
+			Name: defaultStoreName,
 		}
 		if err := s.repo.Update(ctx, setting); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("storeSettingService.Get init: %w", err)
 		}
 	}
 	return toStoreSettingResponse(setting), nil
@@ -56,13 +62,13 @@ func (s *storeSettingService) Get(ctx context.Context) (*dto.StoreSettingRespons
 func (s *storeSettingService) Update(ctx context.Context, actorID uint64, req dto.UpdateStoreSettingRequest, ipAddress string) (*dto.StoreSettingResponse, error) {
 	setting, err := s.repo.Get(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("storeSettingService.Update get: %w", err)
 	}
 
 	var oldVal any
 	if setting == nil {
 		setting = &model.StoreSetting{
-			Name: "Toko Makanan",
+			Name: defaultStoreName,
 		}
 	} else {
 		oldVal = toStoreSettingResponse(setting)
@@ -83,25 +89,23 @@ func (s *storeSettingService) Update(ctx context.Context, actorID uint64, req dt
 	}
 
 	if err := s.repo.Update(ctx, setting); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("storeSettingService.Update save: %w", err)
 	}
 
 	res := toStoreSettingResponse(setting)
 
 	if s.auditService != nil {
-		var actorIDPtr *uint64
-		if actorID > 0 {
-			actorIDPtr = &actorID
-		}
-		_ = s.auditService.Log(ctx, AuditEntry{
-			UserID:     actorIDPtr,
+		if err := s.auditService.Log(ctx, AuditEntry{
+			UserID:     toActorPtr(actorID),
 			Action:     "UPDATE",
 			EntityType: "store_setting",
 			EntityID:   &setting.ID,
 			OldValue:   oldVal,
 			NewValue:   res,
 			IPAddress:  ipAddress,
-		})
+		}); err != nil {
+			log.Warn().Err(err).Msg("audit log: failed to record entry")
+		}
 	}
 
 	return res, nil

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/ikkromm18/tokomakanan/internal/model"
 	"gorm.io/gorm"
@@ -28,7 +29,7 @@ func (r *storeSettingRepository) Get(ctx context.Context) (*model.StoreSetting, 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, fmt.Errorf("storeSettingRepository.Get: %w", err)
 	}
 	return &setting, nil
 }
@@ -37,11 +38,17 @@ func (r *storeSettingRepository) Update(ctx context.Context, setting *model.Stor
 	var count int64
 	if setting.ID != 0 {
 		if err := r.db.WithContext(ctx).Model(&model.StoreSetting{}).Where("id = ?", setting.ID).Count(&count).Error; err != nil {
-			return err
+			return fmt.Errorf("storeSettingRepository.Update count: %w", err)
 		}
 	}
 	if count == 0 {
-		return r.db.WithContext(ctx).Create(setting).Error
+		if err := r.db.WithContext(ctx).Create(setting).Error; err != nil {
+			return fmt.Errorf("storeSettingRepository.Update create: %w", err)
+		}
+		return nil
 	}
-	return r.db.WithContext(ctx).Save(setting).Error
+	if err := r.db.WithContext(ctx).Save(setting).Error; err != nil {
+		return fmt.Errorf("storeSettingRepository.Update save: %w", err)
+	}
+	return nil
 }

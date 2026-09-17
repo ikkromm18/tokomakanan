@@ -68,7 +68,7 @@ func LoggerWithWriter(w io.Writer) gin.HandlerFunc {
 			event = logger.Info()
 		}
 
-		event.
+		event = event.
 			Str("method", method).
 			Str("path", path).
 			Int("status", status).
@@ -77,12 +77,12 @@ func LoggerWithWriter(w io.Writer) gin.HandlerFunc {
 			Str("request_id", reqID)
 
 		if userID, exists := c.Get("user_id"); exists {
-			event.Any("user_id", userID)
+			event = event.Any("user_id", userID)
 		}
 
 		// Log response body only on error (status >= 400), never log request body
 		if status >= 400 && bodyWriter.body.Len() > 0 {
-			event.Str("error_response", bodyWriter.body.String())
+			event = event.Str("error_response", bodyWriter.body.String())
 		}
 
 		event.Msg("HTTP request")

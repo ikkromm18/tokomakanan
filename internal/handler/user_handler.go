@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ikkromm18/tokomakanan/internal/dto"
@@ -19,19 +18,7 @@ func NewUserHandler(service service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) List(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if page < 1 {
-		page = 1
-	}
-
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	if limit < 1 {
-		limit = 20
-	}
-	if limit > 100 {
-		limit = 100
-	}
-
+	page, limit := parsePaginationParams(c)
 	role := c.Query("role")
 	search := c.Query("search")
 
@@ -63,7 +50,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 }
 
 func (h *UserHandler) GetByID(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := parseIDParam(c, "id")
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, "Invalid user ID")
 		return
@@ -79,7 +66,7 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 }
 
 func (h *UserHandler) Update(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := parseIDParam(c, "id")
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, "Invalid user ID")
 		return
@@ -103,7 +90,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 }
 
 func (h *UserHandler) Delete(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := parseIDParam(c, "id")
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, "Invalid user ID")
 		return

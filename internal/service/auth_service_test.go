@@ -248,7 +248,7 @@ func TestAuthService_Login_RepoError(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Nil(t, resp)
-	assert.Equal(t, "db query error", err.Error())
+	assert.ErrorContains(t, err, "db query error")
 
 	auditSvc.AssertNotCalled(t, "Log", mock.Anything, mock.Anything)
 	repo.AssertExpectations(t)
@@ -316,7 +316,7 @@ func TestAuthService_GetMe_RepoError(t *testing.T) {
 	userInfo, err := svc.GetMe(context.Background(), 99)
 	assert.Error(t, err)
 	assert.Nil(t, userInfo)
-	assert.Equal(t, "db error", err.Error())
+	assert.ErrorContains(t, err, "db error")
 
 	repo.AssertExpectations(t)
 }
@@ -349,7 +349,7 @@ func TestAuthService_ChangePassword_Success(t *testing.T) {
 	})).Return(nil).Once()
 
 	auditSvc.On("Log", mock.Anything, mock.MatchedBy(func(e service.AuditEntry) bool {
-		return e.Action == "UPDATE" &&
+		return e.Action == "CHANGE_PASSWORD" &&
 			e.EntityType == "user" &&
 			*e.EntityID == 3 &&
 			*e.UserID == 3 &&
@@ -476,7 +476,7 @@ func TestAuthService_ChangePassword_UpdateRepoError(t *testing.T) {
 	}, "127.0.0.1")
 
 	assert.Error(t, err)
-	assert.Equal(t, "db write failure", err.Error())
+	assert.ErrorContains(t, err, "db write failure")
 
 	repo.AssertExpectations(t)
 	auditSvc.AssertNotCalled(t, "Log", mock.Anything, mock.Anything)

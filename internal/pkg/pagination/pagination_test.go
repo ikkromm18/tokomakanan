@@ -52,3 +52,18 @@ func TestGetOffset(t *testing.T) {
 		assert.Equal(t, 0, offset)
 	})
 }
+
+func TestGetLimit(t *testing.T) {
+	t.Run("normal limit", func(t *testing.T) {
+		assert.Equal(t, 25, pagination.GetLimit(25))
+	})
+
+	t.Run("non-positive falls back to default limit", func(t *testing.T) {
+		assert.Equal(t, pagination.DefaultLimit, pagination.GetLimit(0))
+		assert.Equal(t, pagination.DefaultLimit, pagination.GetLimit(-10))
+	})
+
+	t.Run("above max limit clamped to max limit", func(t *testing.T) {
+		assert.Equal(t, pagination.MaxLimit, pagination.GetLimit(150))
+	})
+}

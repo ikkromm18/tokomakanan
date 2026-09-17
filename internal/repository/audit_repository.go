@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ikkromm18/tokomakanan/internal/model"
+	"github.com/ikkromm18/tokomakanan/internal/pkg/pagination"
 	"gorm.io/gorm"
 )
 
@@ -21,21 +23,15 @@ func NewAuditRepository(db *gorm.DB) AuditRepository {
 }
 
 func (r *auditRepository) Create(ctx context.Context, log *model.AuditLog) error {
-	return r.db.WithContext(ctx).Create(log).Error
+	if err := r.db.WithContext(ctx).Create(log).Error; err != nil {
+		return fmt.Errorf("auditRepository.Create: %w", err)
+	}
+	return nil
 }
 
 func (r *auditRepository) FindAll(ctx context.Context, page, limit int, entityType, action string) ([]model.AuditLog, int64, error) {
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 {
-		limit = 20
-	}
-	if limit > 100 {
-		limit = 100
-	}
-
-	offset := (page - 1) * limit
+	offset := pagination.GetOffset(page, limit)
+	limit = pagination.GetLimit(limit)
 
 	var totalRows int64
 	query := r.db.WithContext(ctx).Model(&model.AuditLog{})
@@ -48,12 +44,12 @@ func (r *auditRepository) FindAll(ctx context.Context, page, limit int, entityTy
 	}
 
 	if err := query.Count(&totalRows).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("auditRepository.FindAll count: %w", err)
 	}
 
 	logs := make([]model.AuditLog, 0)
 	if err := query.Order("created_at DESC, id DESC").Offset(offset).Limit(limit).Find(&logs).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("auditRepository.FindAll find: %w", err)
 	}
 
 	return logs, totalRows, nil

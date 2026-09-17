@@ -156,7 +156,7 @@ func TestUserService_Create_RepoFindByEmailError(t *testing.T) {
 	res, err := svc.Create(context.Background(), req, 1, "127.0.0.1")
 	assert.Error(t, err)
 	assert.Nil(t, res)
-	assert.Equal(t, "db error", err.Error())
+	assert.ErrorContains(t, err, "db error")
 }
 
 func TestUserService_Create_RepoCreateError(t *testing.T) {
@@ -176,7 +176,7 @@ func TestUserService_Create_RepoCreateError(t *testing.T) {
 	res, err := svc.Create(context.Background(), req, 1, "127.0.0.1")
 	assert.Error(t, err)
 	assert.Nil(t, res)
-	assert.Equal(t, "insert failed", err.Error())
+	assert.ErrorContains(t, err, "insert failed")
 }
 
 func TestUserService_GetByID_Success(t *testing.T) {
@@ -228,7 +228,7 @@ func TestUserService_GetByID_RepoError(t *testing.T) {
 	res, err := svc.GetByID(context.Background(), 99)
 	assert.Error(t, err)
 	assert.Nil(t, res)
-	assert.Equal(t, "db error", err.Error())
+	assert.ErrorContains(t, err, "db error")
 }
 
 func TestUserService_Update_SuccessAllFields(t *testing.T) {
@@ -411,7 +411,7 @@ func TestUserService_Delete_RepoDeleteError(t *testing.T) {
 
 	err := svc.Delete(context.Background(), 15, 1, "127.0.0.1")
 	assert.Error(t, err)
-	assert.Equal(t, "db delete failure", err.Error())
+	assert.ErrorContains(t, err, "db delete failure")
 }
 
 func TestUserService_List_Success(t *testing.T) {
@@ -445,5 +445,5 @@ func TestUserService_List_RepoError(t *testing.T) {
 	res, _, err := svc.List(context.Background(), 1, 20, "", "")
 	assert.Error(t, err)
 	assert.Nil(t, res)
-	assert.Equal(t, "db query error", err.Error())
+	assert.ErrorContains(t, err, "db query error")
 }

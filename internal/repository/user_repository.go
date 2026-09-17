@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/ikkromm18/tokomakanan/internal/model"
+	"github.com/ikkromm18/tokomakanan/internal/pkg/pagination"
 	"gorm.io/gorm"
 )
 
@@ -32,43 +34,40 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, fmt.Errorf("userRepository.FindByEmail: %w", err)
 	}
 	return &user, nil
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id uint64) (*model.User, error) {
 	var user model.User
-	err := r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
+	err := r.db.WithContext(ctx).First(&user, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, fmt.Errorf("userRepository.FindByID: %w", err)
 	}
 	return &user, nil
 }
 
 func (r *userRepository) Update(ctx context.Context, user *model.User) error {
-	return r.db.WithContext(ctx).Save(user).Error
+	if err := r.db.WithContext(ctx).Save(user).Error; err != nil {
+		return fmt.Errorf("userRepository.Update: %w", err)
+	}
+	return nil
 }
 
 func (r *userRepository) Create(ctx context.Context, user *model.User) error {
-	return r.db.WithContext(ctx).Create(user).Error
+	if err := r.db.WithContext(ctx).Create(user).Error; err != nil {
+		return fmt.Errorf("userRepository.Create: %w", err)
+	}
+	return nil
 }
 
 func (r *userRepository) FindAll(ctx context.Context, page, limit int, role, search string) ([]model.User, int64, error) {
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 {
-		limit = 20
-	}
-	if limit > 100 {
-		limit = 100
-	}
-
-	offset := (page - 1) * limit
+	offset := pagination.GetOffset(page, limit)
+	limit = pagination.GetLimit(limit)
 
 	var totalRows int64
 	query := r.db.WithContext(ctx).Model(&model.User{})
@@ -82,18 +81,21 @@ func (r *userRepository) FindAll(ctx context.Context, page, limit int, role, sea
 	}
 
 	if err := query.Count(&totalRows).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("userRepository.FindAll count: %w", err)
 	}
 
 	users := make([]model.User, 0)
 	if err := query.Order("id DESC").Offset(offset).Limit(limit).Find(&users).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("userRepository.FindAll find: %w", err)
 	}
 
 	return users, totalRows, nil
 }
 
 func (r *userRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&model.User{}, id).Error
+	if err := r.db.WithContext(ctx).Delete(&model.User{}, id).Error; err != nil {
+		return fmt.Errorf("userRepository.Delete: %w", err)
+	}
+	return nil
 }
 

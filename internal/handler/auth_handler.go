@@ -17,25 +17,6 @@ func NewAuthHandler(service service.AuthService) *AuthHandler {
 	return &AuthHandler{service: service}
 }
 
-func getUserID(c *gin.Context) (uint64, bool) {
-	val, exists := c.Get("user_id")
-	if !exists {
-		return 0, false
-	}
-	switch v := val.(type) {
-	case uint64:
-		return v, true
-	case int:
-		return uint64(v), true
-	case int64:
-		return uint64(v), true
-	case float64:
-		return uint64(v), true
-	default:
-		return 0, false
-	}
-}
-
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

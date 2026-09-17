@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ikkromm18/tokomakanan/internal/config"
 	"github.com/ikkromm18/tokomakanan/internal/dto"
@@ -10,6 +11,7 @@ import (
 	"github.com/ikkromm18/tokomakanan/internal/pkg/pagination"
 	"github.com/ikkromm18/tokomakanan/internal/pkg/response"
 	"github.com/ikkromm18/tokomakanan/internal/repository"
+	"github.com/rs/zerolog/log"
 )
 
 type UserService interface {
@@ -49,7 +51,7 @@ func toUserResponse(u *model.User) *dto.UserResponse {
 func (s *userService) List(ctx context.Context, page, limit int, role, search string) ([]dto.UserResponse, dto.PaginationMeta, error) {
 	users, totalRows, err := s.userRepo.FindAll(ctx, page, limit, role, search)
 	if err != nil {
-		return nil, dto.PaginationMeta{}, err
+		return nil, dto.PaginationMeta{}, fmt.Errorf("userService.List: %w", err)
 	}
 
 	responses := make([]dto.UserResponse, len(users))
@@ -64,20 +66,17 @@ func (s *userService) List(ctx context.Context, page, limit int, role, search st
 func (s *userService) Create(ctx context.Context, req dto.CreateUserRequest, actorID uint64, ipAddress string) (*dto.UserResponse, error) {
 	existing, err := s.userRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("userService.Create check email: %w", err)
 	}
 	if existing != nil {
 		return nil, response.NewServiceError(response.ErrDuplicate, "Email already registered")
 	}
 
-	cost := 12
-	if s.cfg != nil && s.cfg.BcryptCost > 0 {
-		cost = s.cfg.BcryptCost
-	}
+	cost := getBcryptCost(s.cfg)
 
 	hashedPassword, err := jwtpkg.HashPassword(req.Password, cost)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("userService.Create hash: %w", err)
 	}
 
 	user := &model.User{
@@ -89,24 +88,22 @@ func (s *userService) Create(ctx context.Context, req dto.CreateUserRequest, act
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("userService.Create: %w", err)
 	}
 
 	res := toUserResponse(user)
 
 	if s.auditService != nil {
-		var actorIDPtr *uint64
-		if actorID > 0 {
-			actorIDPtr = &actorID
-		}
-		_ = s.auditService.Log(ctx, AuditEntry{
-			UserID:     actorIDPtr,
+		if err := s.auditService.Log(ctx, AuditEntry{
+			UserID:     toActorPtr(actorID),
 			Action:     "CREATE",
 			EntityType: "user",
 			EntityID:   &user.ID,
 			NewValue:   res,
 			IPAddress:  ipAddress,
-		})
+		}); err != nil {
+			log.Warn().Err(err).Msg("audit log: failed to record entry")
+		}
 	}
 
 	return res, nil
@@ -115,7 +112,7 @@ func (s *userService) Create(ctx context.Context, req dto.CreateUserRequest, act
 func (s *userService) GetByID(ctx context.Context, id uint64) (*dto.UserResponse, error) {
 	user, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("userService.GetByID: %w", err)
 	}
 	if user == nil {
 		return nil, response.NewServiceError(response.ErrNotFound, "User not found")
@@ -127,7 +124,7 @@ func (s *userService) GetByID(ctx context.Context, id uint64) (*dto.UserResponse
 func (s *userService) Update(ctx context.Context, id uint64, req dto.UpdateUserRequest, actorID uint64, ipAddress string) (*dto.UserResponse, error) {
 	user, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("userService.Update find: %w", err)
 	}
 	if user == nil {
 		return nil, response.NewServiceError(response.ErrNotFound, "User not found")
@@ -138,7 +135,7 @@ func (s *userService) Update(ctx context.Context, id uint64, req dto.UpdateUserR
 	if req.Email != nil && *req.Email != user.Email {
 		existing, err := s.userRepo.FindByEmail(ctx, *req.Email)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("userService.Update check email: %w", err)
 		}
 		if existing != nil && existing.ID != user.ID {
 			return nil, response.NewServiceError(response.ErrDuplicate, "Email already registered")
@@ -159,38 +156,33 @@ func (s *userService) Update(ctx context.Context, id uint64, req dto.UpdateUserR
 	}
 
 	if req.Password != nil && *req.Password != "" {
-		cost := 12
-		if s.cfg != nil && s.cfg.BcryptCost > 0 {
-			cost = s.cfg.BcryptCost
-		}
+		cost := getBcryptCost(s.cfg)
 
 		hashedPassword, err := jwtpkg.HashPassword(*req.Password, cost)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("userService.Update hash: %w", err)
 		}
 		user.PasswordHash = hashedPassword
 	}
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("userService.Update: %w", err)
 	}
 
 	res := toUserResponse(user)
 
 	if s.auditService != nil {
-		var actorIDPtr *uint64
-		if actorID > 0 {
-			actorIDPtr = &actorID
-		}
-		_ = s.auditService.Log(ctx, AuditEntry{
-			UserID:     actorIDPtr,
+		if err := s.auditService.Log(ctx, AuditEntry{
+			UserID:     toActorPtr(actorID),
 			Action:     "UPDATE",
 			EntityType: "user",
 			EntityID:   &user.ID,
 			OldValue:   oldValue,
 			NewValue:   res,
 			IPAddress:  ipAddress,
-		})
+		}); err != nil {
+			log.Warn().Err(err).Msg("audit log: failed to record entry")
+		}
 	}
 
 	return res, nil
@@ -199,7 +191,7 @@ func (s *userService) Update(ctx context.Context, id uint64, req dto.UpdateUserR
 func (s *userService) Delete(ctx context.Context, id uint64, actorID uint64, ipAddress string) error {
 	user, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("userService.Delete find: %w", err)
 	}
 	if user == nil {
 		return response.NewServiceError(response.ErrNotFound, "User not found")
@@ -208,22 +200,20 @@ func (s *userService) Delete(ctx context.Context, id uint64, actorID uint64, ipA
 	oldValue := toUserResponse(user)
 
 	if err := s.userRepo.Delete(ctx, id); err != nil {
-		return err
+		return fmt.Errorf("userService.Delete: %w", err)
 	}
 
 	if s.auditService != nil {
-		var actorIDPtr *uint64
-		if actorID > 0 {
-			actorIDPtr = &actorID
-		}
-		_ = s.auditService.Log(ctx, AuditEntry{
-			UserID:     actorIDPtr,
+		if err := s.auditService.Log(ctx, AuditEntry{
+			UserID:     toActorPtr(actorID),
 			Action:     "DELETE",
 			EntityType: "user",
 			EntityID:   &id,
 			OldValue:   oldValue,
 			IPAddress:  ipAddress,
-		})
+		}); err != nil {
+			log.Warn().Err(err).Msg("audit log: failed to record entry")
+		}
 	}
 
 	return nil
