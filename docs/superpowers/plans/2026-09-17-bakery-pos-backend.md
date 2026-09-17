@@ -850,11 +850,11 @@ git push origin main
 **Interfaces:**
 - Produces: `invoice.GenerateInvoiceNumber(db *gorm.DB, date time.Time) (string, error)` (Format: `INV/YYYYMMDD/XXXXX`)
 
-- [ ] **Step 1: Write failing test for invoice number generation**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement invoice counter query and formatting**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing test for invoice number generation**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement invoice counter query and formatting**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -878,11 +878,11 @@ git push origin main
   - Status transition state machine strictly enforced.
   - Single DB transaction for Order + OrderItems + initial Payment.
 
-- [ ] **Step 1: Write failing tests for Order creation and status transition validation**
-- [ ] **Step 2: Run tests to verify failure**
-- [ ] **Step 3: Implement Order repository, service, handler**
-- [ ] **Step 4: Run tests to verify pass**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing tests for Order creation and status transition validation**
+- [x] **Step 2: Run tests to verify failure**
+- [x] **Step 3: Implement Order repository, service, handler**
+- [x] **Step 4: Run tests to verify pass**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -901,11 +901,11 @@ git push origin main
 - Produces: `PaymentService.ListByOrder(ctx, orderID uint64) ([]dto.PaymentResponse, error)`
 - Rules: Prevent overpayment (`total_paid + amount <= total_amount`). Trigger status transition (DRAFT -> DP_PAID / PAID).
 
-- [ ] **Step 1: Write failing test verifying overpayment is rejected**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement Payment repository, service, handler**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing test verifying overpayment is rejected**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement Payment repository, service, handler**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -921,11 +921,11 @@ git push origin main
 - Produces: `PublicService.GetInvoiceByToken(ctx, token string) (*dto.PublicInvoiceResponse, error)`
 - Rules: Unauthenticated, strictly excludes HPP and Gross Profit.
 
-- [ ] **Step 1: Write failing test verifying public invoice does not expose HPP**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement Public invoice service and handler**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit & Git Push Phase 4**
+- [x] **Step 1: Write failing test verifying public invoice does not expose HPP**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement Public invoice service and handler**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit & Git Push Phase 4**
 
 ```bash
 git add .
