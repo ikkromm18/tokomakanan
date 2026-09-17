@@ -952,11 +952,11 @@ git push origin main
 - Produces: `DashboardService.GetPOReminders(ctx) ([]dto.OrderResponse, error)`
 - Rules: Admin role receives summary with `today_gross_profit` omitted.
 
-- [ ] **Step 1: Write failing test verifying admin dashboard hides `today_gross_profit`**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement Dashboard repository, service, handler**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing test verifying admin dashboard hides `today_gross_profit`**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement Dashboard repository, service, handler**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -975,11 +975,11 @@ git push origin main
 - Produces: `ReportService.ExportCSV(ctx, req dto.ReportFilterRequest) ([]byte, string, error)`
 - Rules: Superadmin & Owner only. Export with UTF-8 BOM.
 
-- [ ] **Step 1: Write failing test for sales and profit aggregation calculation**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement Report repository, service, handler**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing test for sales and profit aggregation calculation**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement Report repository, service, handler**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -997,14 +997,14 @@ git push origin main
 - Consumes: All handlers and middlewares
 - Produces: Full Gin HTTP server with `/health` and `/api/v1/*` routes wired.
 
-- [ ] **Step 1: Wire all routes according to PRD section 8 & middleware stack section 10**
-- [ ] **Step 2: Implement Dockerfile, docker-compose.yml, and Makefile**
-- [ ] **Step 3: Run full test suite with coverage**
+- [x] **Step 1: Wire all routes according to PRD section 8 & middleware stack section 10**
+- [x] **Step 2: Implement Dockerfile, docker-compose.yml, and Makefile**
+- [x] **Step 3: Run full test suite with coverage**
 Run: `go test -v -cover ./...`
 Expected: ALL PASS with Service coverage >= 80%, Handler >= 70%.
-- [ ] **Step 4: Verify application launch and health check**
+- [x] **Step 4: Verify application launch and health check**
 Run: `go run cmd/api/main.go` and check `curl http://localhost:8080/health`.
-- [ ] **Step 5: Final Commit & Git Push Phase 5 to GitHub**
+- [x] **Step 5: Final Commit & Git Push Phase 5 to GitHub**
 
 ```bash
 git add .
