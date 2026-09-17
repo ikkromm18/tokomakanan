@@ -4,12 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/ikkromm18/tokomakanan/internal/config"
 	"github.com/ikkromm18/tokomakanan/internal/database"
-	"github.com/ikkromm18/tokomakanan/internal/pkg/response"
+	"github.com/ikkromm18/tokomakanan/internal/handler"
+	"github.com/ikkromm18/tokomakanan/internal/repository"
+	"github.com/ikkromm18/tokomakanan/internal/router"
+	"github.com/ikkromm18/tokomakanan/internal/service"
 )
 
 func main() {
@@ -51,13 +52,50 @@ func main() {
 		return
 	}
 
-	r := gin.Default()
-	r.GET("/health", func(c *gin.Context) {
-		response.Success(c, http.StatusOK, "Service is healthy", gin.H{
-			"app": cfg.AppName,
-			"env": cfg.AppEnv,
-		})
-	})
+	// 1. Initialize Repositories
+	userRepo := repository.NewUserRepository(gormDB)
+	storeRepo := repository.NewStoreSettingRepository(gormDB)
+	auditRepo := repository.NewAuditRepository(gormDB)
+	productRepo := repository.NewProductRepository(gormDB)
+	packageRepo := repository.NewPackageRepository(gormDB)
+	customerRepo := repository.NewCustomerRepository(gormDB)
+	orderRepo := repository.NewOrderRepository(gormDB)
+	paymentRepo := repository.NewPaymentRepository(gormDB)
+	dashboardRepo := repository.NewDashboardRepository(gormDB)
+	reportRepo := repository.NewReportRepository(gormDB)
+
+	// 2. Initialize Services
+	auditService := service.NewAuditService(auditRepo)
+	authService := service.NewAuthService(userRepo, auditService, cfg)
+	userService := service.NewUserService(userRepo, auditService, cfg)
+	storeService := service.NewStoreSettingService(storeRepo, auditService)
+	productService := service.NewProductService(productRepo, auditService)
+	packageService := service.NewPackageService(packageRepo, productRepo, auditService)
+	customerService := service.NewCustomerService(customerRepo, auditService)
+	orderService := service.NewOrderService(orderRepo, productRepo, packageRepo, auditService)
+	paymentService := service.NewPaymentService(paymentRepo, orderRepo, auditService)
+	publicService := service.NewPublicService(orderRepo, storeRepo)
+	dashboardService := service.NewDashboardService(dashboardRepo)
+	reportService := service.NewReportService(reportRepo)
+
+	// 3. Initialize Handlers
+	handlers := &router.Handlers{
+		Auth:         handler.NewAuthHandler(authService),
+		User:         handler.NewUserHandler(userService),
+		StoreSetting: handler.NewStoreSettingHandler(storeService),
+		Audit:        handler.NewAuditHandler(auditService),
+		Product:      handler.NewProductHandler(productService),
+		Package:      handler.NewPackageHandler(packageService),
+		Customer:     handler.NewCustomerHandler(customerService),
+		Order:        handler.NewOrderHandler(orderService),
+		Payment:      handler.NewPaymentHandler(paymentService),
+		Public:       handler.NewPublicHandler(publicService),
+		Dashboard:    handler.NewDashboardHandler(dashboardService),
+		Report:       handler.NewReportHandler(reportService),
+	}
+
+	// 4. Setup Router
+	r := router.SetupRouter(cfg, handlers)
 
 	addr := fmt.Sprintf(":%s", cfg.AppPort)
 	log.Printf("Server listening on %s", addr)
