@@ -2,6 +2,8 @@
 
 Dokumentasi ini disusun sebagai acuan teknis integrasi bagi **Front-End Developer** dalam mengonsumsi Backend API Bakery POS & Management System (`tokomakanan`).
 
+> 💡 **Postman Collection**: File koleksi Postman yang siap langsung di-import tersedia di file: [**`tokomakanan.postman_collection.json`**](tokomakanan.postman_collection.json). Ketika menjalankan request `Login`, token JWT akan otomatis tersimpan di variable `{{token}}`.
+
 ---
 
 ## 1. Konvensi Umum

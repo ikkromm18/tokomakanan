@@ -4,12 +4,15 @@ Backend API produksi untuk sistem Point of Sale (POS) dan manajemen operasional 
 
 ---
 
-> ## 📖 Panduan Integrasi Front-End & Dokumentasi API
+> ## 📖 Panduan Integrasi Front-End, Dokumentasi API & Postman Collection
 > Untuk rincian lengkap mengenai seluruh endpoint, autentikasi, expected request body, query parameter, contoh response payload JSON, dan kode status HTTP yang dihasilkan, silakan buka:
 > 
 > 👉 [**API_DOCUMENTATION.md**](API_DOCUMENTATION.md)
 > 
-> File tersebut dirancang khusus sebagai panduan acuan bagi tim Front-End (Web/Mobile/Desktop).
+> 🚀 **Postman Collection Siap Import**:
+> Koleksi Postman lengkap siap diimpor langsung ke Postman:
+> 👉 [**tokomakanan.postman_collection.json**](tokomakanan.postman_collection.json)
+> *(Dilengkapi 41 request terstruktur dan otomatis menyimpan JWT Token ke variabel `{{token}}` saat login).*
 
 ---
 

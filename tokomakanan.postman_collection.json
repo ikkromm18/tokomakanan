@@ -1,0 +1,1632 @@
+{
+  "info": {
+    "_postman_id": "tokomakanan-bakery-pos-api-v1",
+    "name": "Bakery POS & Management System (tokomakanan)",
+    "description": "Koleksi API Postman untuk Backend Bakery POS & Management System (tokomakanan).\n\nFitur:\n- Otomatis menyimpan `token` JWT ke variabel koleksi saat mengeksekusi request Login.\n- Mendukung role Superadmin, Owner, dan Kasir (Admin).\n- Terstruktur rapi per modul bisnis.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "invoice_token",
+      "value": "a87998b6-90fe-42e5-a337-14fc75ba4a41",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "00. Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "query": []
+            },
+            "description": "Cek status dan ketersediaan service API",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01. Authentication",
+      "item": [
+        {
+          "name": "Login (Superadmin Default)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ],
+              "query": []
+            },
+            "description": "Login akun default superadmin. Otomatis menyimpan token JWT ke variabel koleksi.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@tokomakanan.com\",\n  \"password\": \"SuperAdmin123!\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.data && res.data.token) {",
+                  "        pm.collectionVariables.set(\"token\", res.data.token);",
+                  "        console.log(\"Token JWT berhasil disimpan ke collection variable 'token'\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Custom Account)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ],
+              "query": []
+            },
+            "description": "Login dengan akun kustom.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kasir@tokomakanan.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.data && res.data.token) {",
+                  "        pm.collectionVariables.set(\"token\", res.data.token);",
+                  "        console.log(\"Token JWT berhasil disimpan ke collection variable 'token'\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ],
+              "query": []
+            },
+            "description": "Mendapatkan info profil akun yang sedang login."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "change-password"
+              ],
+              "query": []
+            },
+            "description": "Ganti password akun sendiri.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"SuperAdmin123!\",\n  \"new_password\": \"NewPassword123!\",\n  \"confirm_password\": \"NewPassword123!\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. User Management (Superadmin Only)",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users?page=1&limit=20&role=&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "role",
+                  "value": ""
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Daftar pengguna terpaginasi (role: superadmin only)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create User (Owner / Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
+              "query": []
+            },
+            "description": "Buat pengguna baru dengan role owner atau admin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sarah Kasir\",\n  \"email\": \"kasir1@tokomakanan.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"admin\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Detail data pengguna."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "2"
+              ],
+              "query": []
+            },
+            "description": "Update data pengguna (kosongkan password jika tidak diubah).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sarah Kasir Senior\",\n  \"email\": \"kasir1@tokomakanan.com\",\n  \"role\": \"admin\",\n  \"is_active\": true,\n  \"password\": \"\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "2"
+              ],
+              "query": []
+            },
+            "description": "Soft delete pengguna."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Store Settings",
+      "item": [
+        {
+          "name": "Get Store Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/store-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store-settings"
+              ],
+              "query": []
+            },
+            "description": "Melihat data profil toko roti."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Store Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/store-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store-settings"
+              ],
+              "query": []
+            },
+            "description": "Update profil toko (Superadmin / Owner).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bakery Delights\",\n  \"address\": \"Jl. Merdeka No. 18, Bandung\",\n  \"phone\": \"081234567890\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"receipt_footer\": \"Terima kasih telah berbelanja di Bakery Delights!\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Audit Logs (Superadmin Only)",
+      "item": [
+        {
+          "name": "List Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/audit-logs?page=1&limit=20&entity_type=&action=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "entity_type",
+                  "value": ""
+                },
+                {
+                  "key": "action",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Daftar log aktivitas dan mutasi data (Superadmin only)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05. Products (Master Data)",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products?page=1&limit=20&category=&is_active=true&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "category",
+                  "value": ""
+                },
+                {
+                  "key": "is_active",
+                  "value": "true"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Daftar produk roti/kue. Role admin tidak akan menerima field hpp."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
+              "query": []
+            },
+            "description": "Tambah produk baru (Superadmin / Owner). Syarat: sell_price >= hpp.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Roti Tawar Gandum\",\n  \"category\": \"Bakery\",\n  \"hpp\": 12000,\n  \"sell_price\": 20000\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Detail produk."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Update data produk.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Roti Tawar Gandum Premium\",\n  \"category\": \"Bakery\",\n  \"hpp\": 13000,\n  \"sell_price\": 22000,\n  \"is_active\": true\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Soft delete produk."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06. Packages (Bundling)",
+      "item": [
+        {
+          "name": "List Packages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/packages?page=1&limit=20&is_active=true&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "packages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "is_active",
+                  "value": "true"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Daftar paket bundling."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Package",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/packages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "packages"
+              ],
+              "query": []
+            },
+            "description": "Tambah paket bundling baru. total_hpp dihitung otomatis.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Paket Sarapan Hemat\",\n  \"sell_price\": 30000,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 1\n    }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Package by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/packages/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "packages",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Detail paket dan komposisi item."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Package",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/packages/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "packages",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Update paket dan item.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Paket Sarapan Spesial\",\n  \"sell_price\": 32000,\n  \"is_active\": true,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 1\n    }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Package",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/packages/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "packages",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Soft delete paket."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07. Customers",
+      "item": [
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/customers?page=1&limit=20&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Daftar pelanggan (pencarian nama atau nomor telepon)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/customers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers"
+              ],
+              "query": []
+            },
+            "description": "Daftarkan pelanggan baru. Nomor telepon harus unik.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ibu Kartika\",\n  \"phone\": \"081234567891\",\n  \"address\": \"Komplek Dago Asri No. 12\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/customers/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Detail pelanggan."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/customers/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Update data pelanggan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ibu Kartika Sari\",\n  \"phone\": \"081234567891\",\n  \"address\": \"Komplek Dago Asri No. 12 Bandung\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08. Orders & Kasir (POS)",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders?page=1&limit=20&status=&order_type=&start_date=&end_date=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "order_type",
+                  "value": ""
+                },
+                {
+                  "key": "start_date",
+                  "value": ""
+                },
+                {
+                  "key": "end_date",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Daftar transaksi order terpaginasi dengan filter."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Order (Direct Sale)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders"
+              ],
+              "query": []
+            },
+            "description": "Transaksi langsung kasir (Direct Sale). Wajib lunas saat dibuat.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": null,\n  \"order_type\": \"DIRECT_SALE\",\n  \"pickup_date\": null,\n  \"notes\": \"Pesanan kasir langsung\",\n  \"discount_amount\": 0,\n  \"payment_method\": \"CASH\",\n  \"initial_paid\": 20000,\n  \"items\": [\n    {\n      \"item_type\": \"PRODUCT\",\n      \"item_id\": 1,\n      \"quantity\": 1\n    }\n  ]\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.data) {",
+                  "        if (res.data.id) {",
+                  "            pm.collectionVariables.set(\"order_id\", res.data.id.toString());",
+                  "            console.log(\"Order ID saved: \" + res.data.id);",
+                  "        }",
+                  "        if (res.data.invoice_token) {",
+                  "            pm.collectionVariables.set(\"invoice_token\", res.data.invoice_token);",
+                  "            console.log(\"Invoice Token saved: \" + res.data.invoice_token);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Order (Pre-Order / PO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders"
+              ],
+              "query": []
+            },
+            "description": "Pesanan katering Pre-Order. Wajib tanggal pengambilan (pickup_date >= hari ini) & DP awal opsional.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"order_type\": \"PRE_ORDER\",\n  \"pickup_date\": \"2026-09-25\",\n  \"notes\": \"Kotak kue warna gold\",\n  \"discount_amount\": 2000,\n  \"payment_method\": \"TRANSFER\",\n  \"initial_paid\": 10000,\n  \"items\": [\n    {\n      \"item_type\": \"PRODUCT\",\n      \"item_id\": 1,\n      \"quantity\": 1\n    }\n  ]\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.data) {",
+                  "        if (res.data.id) {",
+                  "            pm.collectionVariables.set(\"order_id\", res.data.id.toString());",
+                  "            console.log(\"Order ID saved: \" + res.data.id);",
+                  "        }",
+                  "        if (res.data.invoice_token) {",
+                  "            pm.collectionVariables.set(\"invoice_token\", res.data.invoice_token);",
+                  "            console.log(\"Invoice Token saved: \" + res.data.invoice_token);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}"
+              ],
+              "query": []
+            },
+            "description": "Detail lengkap order beserta snapshot harga dan histori pembayaran."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "status"
+              ],
+              "query": []
+            },
+            "description": "Ubah status order mengikuti alur state machine (DRAFT -> DP_PAID -> PAID -> READY -> COMPLETED / CANCELLED).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"READY\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09. Payments",
+      "item": [
+        {
+          "name": "Add Payment (Pelunasan / Cicilan PO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "payments"
+              ],
+              "query": []
+            },
+            "description": "Menambah pembayaran untuk order. Sistem otomatis mencegah pembayaran melebihi sisa tagihan (overpayment).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 8000,\n  \"payment_method\": \"CASH\",\n  \"notes\": \"Pelunasan sisa tagihan PO\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Payments by Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "payments"
+              ],
+              "query": []
+            },
+            "description": "Riwayat pembayaran transaksi."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Public Digital Invoice",
+      "item": [
+        {
+          "name": "Get Public Invoice by Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/public/invoice/{{invoice_token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "invoice",
+                "{{invoice_token}}"
+              ],
+              "query": []
+            },
+            "description": "Endpoint publik untuk membuka nota digital struk kasir/PO tanpa autentikasi. Dijamin 100% tanpa paparan HPP/laba kotor.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11. Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/dashboard/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "dashboard",
+                "summary"
+              ],
+              "query": []
+            },
+            "description": "Ringkasan pendapatan, transaksi, PO aktif hari ini. Laba kotor disembunyikan untuk kasir."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sales Chart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/dashboard/chart?start_date=2026-09-01&end_date=2026-09-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "dashboard",
+                "chart"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-09-30"
+                }
+              ]
+            },
+            "description": "Data grafik tren penjualan harian."
+          },
+          "response": []
+        },
+        {
+          "name": "Get PO Reminders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/dashboard/po-reminders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "dashboard",
+                "po-reminders"
+              ],
+              "query": []
+            },
+            "description": "Daftar pesanan PO yang harus diambil hari ini."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12. Reports (Superadmin & Owner)",
+      "item": [
+        {
+          "name": "Get Sales Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/sales?start_date=2026-09-01&end_date=2026-09-30&order_type=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "sales"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-09-30"
+                },
+                {
+                  "key": "order_type",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Laporan penjualan terperinci (Superadmin & Owner)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profit Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/profit?start_date=2026-09-01&end_date=2026-09-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "profit"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-09-30"
+                }
+              ]
+            },
+            "description": "Laporan laba kotor, total HPP, dan margin keuntungan (Superadmin & Owner)."
+          },
+          "response": []
+        },
+        {
+          "name": "Export Report CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/export?start_date=2026-09-01&end_date=2026-09-30&type=sales",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-09-30"
+                },
+                {
+                  "key": "type",
+                  "value": "sales"
+                }
+              ]
+            },
+            "description": "Unduh file CSV laporan dengan UTF-8 BOM untuk Excel (type: sales / profit)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
