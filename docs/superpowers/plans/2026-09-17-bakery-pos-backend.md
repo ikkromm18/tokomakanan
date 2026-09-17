@@ -780,11 +780,11 @@ git push origin main
 - Produces: `ProductService.Create`, `Update`, `Delete`, `GetByID`, `List`
 - Rule: `sell_price >= hpp`, name unique in category, soft delete.
 
-- [ ] **Step 1: Write failing unit test verifying `sell_price < hpp` returns ErrBusinessRule**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement Product repository, service and handler**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing unit test verifying `sell_price < hpp` returns ErrBusinessRule**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement Product repository, service and handler**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -803,11 +803,11 @@ git push origin main
 - Produces: `PackageService.Create`, `Update`, `Delete`, `GetByID`, `List`
 - Rule: Auto-calculate `total_hpp = SUM(product.hpp * quantity)`. `sell_price >= total_hpp`. In update: delete-and-recreate items in single DB transaction.
 
-- [ ] **Step 1: Write failing test for package HPP calculation and validation**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement Package repository, service and handler**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing test for package HPP calculation and validation**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement Package repository, service and handler**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -825,11 +825,11 @@ git push origin main
 - Produces: `CustomerService.Create`, `Update`, `GetByID`, `List`
 - Rule: Phone is required and unique identifier.
 
-- [ ] **Step 1: Write failing test for customer creation and duplicate phone validation**
-- [ ] **Step 2: Run test to verify failure**
-- [ ] **Step 3: Implement Customer repository, service and handler**
-- [ ] **Step 4: Run test to verify pass**
-- [ ] **Step 5: Commit & Git Push Phase 3**
+- [x] **Step 1: Write failing test for customer creation and duplicate phone validation**
+- [x] **Step 2: Run test to verify failure**
+- [x] **Step 3: Implement Customer repository, service and handler**
+- [x] **Step 4: Run test to verify pass**
+- [x] **Step 5: Commit & Git Push Phase 3**
 
 ```bash
 git add .
