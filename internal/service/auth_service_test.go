@@ -42,6 +42,24 @@ func (m *mockUserRepo) Update(ctx context.Context, user *model.User) error {
 	return args.Error(0)
 }
 
+func (m *mockUserRepo) Create(ctx context.Context, user *model.User) error {
+	args := m.Called(ctx, user)
+	return args.Error(0)
+}
+
+func (m *mockUserRepo) FindAll(ctx context.Context, page, limit int, role, search string) ([]model.User, int64, error) {
+	args := m.Called(ctx, page, limit, role, search)
+	if args.Get(0) == nil {
+		return nil, args.Get(1).(int64), args.Error(2)
+	}
+	return args.Get(0).([]model.User), args.Get(1).(int64), args.Error(2)
+}
+
+func (m *mockUserRepo) Delete(ctx context.Context, id uint64) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
 type mockAuditServiceForAuth struct {
 	mock.Mock
 }

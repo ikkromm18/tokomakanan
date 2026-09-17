@@ -54,6 +54,16 @@ func TestCreatedResponse(t *testing.T) {
 	assert.Equal(t, "Resource created", resp.Message)
 }
 
+func TestNoContentResponse(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	response.NoContent(c)
+
+	assert.Equal(t, http.StatusNoContent, w.Code)
+	assert.Empty(t, w.Body.Bytes())
+}
+
 func TestPaginatedResponse(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)

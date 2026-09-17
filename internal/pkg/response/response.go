@@ -42,6 +42,11 @@ func Created(c *gin.Context, message string, data any) {
 	Success(c, http.StatusCreated, message, data)
 }
 
+func NoContent(c *gin.Context) {
+	c.Status(http.StatusNoContent)
+	c.Writer.WriteHeaderNow()
+}
+
 func Paginated(c *gin.Context, message string, data any, meta dto.PaginationMeta) {
 	c.JSON(http.StatusOK, dto.PaginatedResponse{
 		Success: true,
